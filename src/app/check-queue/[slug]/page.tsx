@@ -76,8 +76,8 @@ export default function page({ params }: { params: { slug: string } }) {
         <table className="table-auto border border-collapse w-full ">
           <thead>
             <tr>
-              <th className="border p-8 sm:text-5xl xs:text-3xl xxs:text-2xl">Your Queue</th>
-              <th className="border p-8 sm:text-5xl xs:text-3xl xxs:text-2xl">Current Queue</th>
+              <th className="border p-8 sm:text-5xl xs:text-3xl xxs:text-2xl min-w-[160px]">Your Queue</th>
+              <th className="border p-8 sm:text-5xl xs:text-3xl xxs:text-2xl min-w-[160px]">Current Queue</th>
             </tr>
           </thead>
           <tbody>
