@@ -3,8 +3,10 @@
 import Btn from "@/components/Btn";
 import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
-import { collection, addDoc, query, onSnapshot, deleteDoc, doc, updateDoc } from "firebase/firestore";
+import { collection, addDoc, query, onSnapshot } from "firebase/firestore";
 import { db } from "@/plugins/firebase";
+import { generateQR } from "@/utils/qrcode";
+import Image from "next/image";
 
 export default function NewQueue() {
   const [lastQueue, setLastQueue] = useState<Queue>({
@@ -14,16 +16,17 @@ export default function NewQueue() {
     deletedAt: null,
     callCount: 0,
   });
+  const [qrCodeSrc, setQrCodeSrc] = useState<string | undefined>();
   useEffect(() => {
     fetchQueue();
   }, []);
-  function AddQueue() {
+  async function AddQueue() {
     let timerInterval: any;
     Swal.fire({
       icon: "success",
       title: "Queue Added",
       html: "Auto close in <b></b> secconds",
-      timer: 3000,
+      timer: 1000,
       timerProgressBar: true,
       didOpen: () => {
         Swal.showLoading();
@@ -40,7 +43,6 @@ export default function NewQueue() {
       },
     }).then((result) => {
       if (result.dismiss === Swal.DismissReason.timer) {
-        // console.log("I was closed by the timer");
       }
     });
   }
@@ -67,20 +69,30 @@ export default function NewQueue() {
 
   const insertQueue = async () => {
     fetchQueue();
-    await addDoc(collection(db, "queue"), {
+    const newQ = await addDoc(collection(db, "queue"), {
       queue: lastQueue.queue + 1,
       createdAt: new Date(),
       updatedAt: new Date(),
       deletedAt: null,
       callCount: 0,
     });
+    const src = await generateQR(`${process.env.URL_CHECK_QUEUE}${newQ.id}`);
+    setQrCodeSrc(src);
   };
 
   return (
     <div className="flex justify-center items-center h-screen">
-      <div className="min-w-[360px] w-2/4 min-h-[300px] h-2/4 border-2 rounded-md border-gray-500 flex flex-col justify-center items-center">
-        <p>กรุณากดปุ่ม "Add Queue" บนหน้าจอ เพื่อจองคิว</p>
-        <Btn className="mt-12 bg-blue-500 text-white hover:bg-blue-400" name="Add Queue" onClick={AddQueue}></Btn>
+      <div className="min-w-[500px] w-2/4 min-h-[400px] h-2/4 border-2 rounded-md border-gray-500 flex flex-col justify-center items-center">
+        <p>กรุณากดปุ่ม "Add Queue" บนหน้าจอ เพื่อจองคิว + Generate Qrcode </p>
+        <Btn className="mt-12 bg-yellow-500 text-white hover:bg-yellow-400" name="Generate Qrcode" onClick={AddQueue}></Btn>
+
+        {qrCodeSrc ? (
+          <>
+            <Image src={qrCodeSrc} width={200} height={200} alt="qrcode" />
+          </>
+        ) : (
+          <></>
+        )}
       </div>
     </div>
   );

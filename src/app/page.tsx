@@ -1,14 +1,15 @@
 "use client";
-import { useEffect, useState } from "react";
-import { collection, addDoc, query, onSnapshot, deleteDoc, doc, where, orderBy, limit } from "firebase/firestore";
+import { useEffect, useRef, useState } from "react";
+import { collection, query, onSnapshot, where } from "firebase/firestore";
 
-import Clock from "./components/Clock";
-import { db } from "./plugins/firebase";
+import Clock from "../components/Clock";
+import { db } from "../plugins/firebase";
 
 export default function Home() {
   const [queue, setQueue] = useState<Queue[]>([]);
   const [current, setCurrent] = useState<Queue>();
-  const [animate, setAnimate] = useState(`blink-currrent`);
+  const [animate, setAnimate] = useState(``);
+  const prevQueRef = useRef<CurrentQueue>();
   useEffect(() => {
     fetchQueue();
     fetchCurrent();
@@ -33,6 +34,7 @@ export default function Home() {
         if (a.queue > b.queue) return -1;
         else return 1;
       });
+
       setQueue(items);
     });
   };
@@ -56,14 +58,19 @@ export default function Home() {
         if (a.queue > b.queue) return -1;
         else return 1;
       });
+      if (prevQueRef.current || items[0]) {
+        if (prevQueRef.current?.callCount !== items[0]?.callCount || prevQueRef.current?.id !== items[0]?.id) {
+          runAnimate();
+          prevQueRef.current = items[0];
+        }
+      }
       setCurrent(items[0]);
-      if (items[0]) runAnimate();
     });
   };
 
   function runAnimate() {
     setAnimate("blink-currrent");
-    const playQueueSuccessSound = new Audio("/quesuccess.mp3");
+    let playQueueSuccessSound = new Audio("/quesuccess.mp3");
     playQueueSuccessSound.volume = 0.4;
     playQueueSuccessSound.play();
     let count = 3;
@@ -81,11 +88,11 @@ export default function Home() {
         <Clock />
       </div>
       <div className="flex items-center justify-center pt-2 px-20 pb-20">
-        <table className="table-auto border border-collapse w-full">
+        <table className="table-auto border border-collapse w-full ">
           <thead>
             <tr>
-              <th className="border p-8 text-5xl">Current</th>
-              <th className="border p-8 text-5xl">Queue</th>
+              <th className="border p-8 sm:text-5xl xs:text-3xl xxs:text-2xl">Current</th>
+              <th className="border p-8 sm:text-5xl xs:text-3xl xxs:text-2xl">Queue</th>
             </tr>
           </thead>
           <tbody>
@@ -95,10 +102,10 @@ export default function Home() {
                   <>
                     <div className="flex justify-center items-center">
                       <div
-                        className={`w-full h-full border-2 rounded-md p-10 border-emerald-400 bg-emerald-400 flex flex-col justify-center items-center text-7xl text-white text-center 
+                        className={`w-full h-full border-2 rounded-md p-10 border-emerald-400 bg-emerald-400 flex flex-col justify-center items-center md:text-7xl xs:text-5xl xxs:text-2xl text-white text-center 
                          ${animate}`}
                       >
-                        {current.queue}
+                        {`Q-${String(current.queue).padStart(2, "0")}`}
                       </div>
                     </div>
                   </>
@@ -112,7 +119,7 @@ export default function Home() {
                 <td className="border ">
                   <div className="flex justify-center items-center ">
                     <span
-                      className={`w-full border-2 rounded-md px-2 border-blue-300 bg-blue-300 text-3xl text-white text-center py-1.5
+                      className={`w-full border-2 rounded-md px-2 border-blue-300 bg-blue-300 sm:text-3xl xxs:text-xl text-white text-center py-1.5
                    `}
                     >
                       {`Q-${String(item.queue).padStart(2, "0")}`}

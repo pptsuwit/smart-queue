@@ -15,7 +15,7 @@ export default function Clock() {
   }, []);
 
   return (
-    <div className="text-8xl " suppressHydrationWarning>
+    <div className="md:text-8xl sm:text-7xl xs:text-6xl xxs:text-5xl " suppressHydrationWarning>
       {time.toLocaleTimeString("th", {
         hour: "2-digit",
         minute: "2-digit",

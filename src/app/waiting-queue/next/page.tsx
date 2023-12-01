@@ -1,10 +1,10 @@
 "use client";
 
-import Btn from "@/app/components/Btn";
+import Btn from "@/components/Btn";
 import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import { collection, query, onSnapshot, doc, updateDoc, where } from "firebase/firestore";
-import { db } from "@/app/plugins/firebase";
+import { db } from "@/plugins/firebase";
 
 export default function NewQueue() {
   const [queue, setQueue] = useState<number>(0);
