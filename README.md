@@ -1,4 +1,7 @@
-# demo smart-queue
+# mini project smart-queue
+
+
+# demo 
 
 All queue
 https://smart-queue-v1.vercel.app/
